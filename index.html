@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Rao sohail | Amazon Virtual Assistant</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root {
+  --amazon: #FF9900;
+  --amazon-dark: #e68a00;
+  --navy: #0A1628;
+  --navy-mid: #0D1F3C;
+  --navy-light: #162947;
+  --slate: #1E3A5F;
+  --text: #FFFFFF;
+  --text-muted: #8BA3C7;
+  --text-dim: #4A6FA5;
+  --card-bg: rgba(22,41,71,0.7);
+  --border: rgba(255,153,0,0.15);
+  --border-subtle: rgba(139,163,199,0.1);
+  --glow: rgba(255,153,0,0.3);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--navy);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+/* ── CANVAS ── */
+#bg-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+/* ── CURSOR ── */
+.cursor {
+  width: 20px; height: 20px;
+  border: 2px solid var(--amazon);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.15s ease, background 0.2s;
+  transform: translate(-50%, -50%);
+}
+.cursor-dot {
+  width: 5px; height: 5px;
+  background: var(--amazon);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: transform 0.05s;
+}
+.cursor.hover { transform: translate(-50%,-50%) scale(2.2); background: rgba(255,153,0,0.15); }
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--navy); }
+::-webkit-scrollbar-thumb { background: var(--amazon); border-radius: 4px; }
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 0 40px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(10,22,40,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-subtle);
+  transition: all 0.3s;
+}
+nav.scrolled {
+  height: 60px;
+  background: rgba(10,22,40,0.97);
+  border-bottom-color: var(--border);
+}
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.5px;
+}
+.logo-icon {
+   width: 60px;
+    height: 60px;
+  background: transparent;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: #000;
+  box-shadow: none;
+}
+.logo-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.logo-text span { color: var(--amazon); }
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.nav-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.nav-links a:hover { color: var(--text); background: rgba(255,153,0,0.1); }
+.nav-links a.active { color: var(--amazon); }
+.nav-cta {
+  background: var(--amazon);
+  color: #000 !important;
+  font-weight: 700 !important;
+  border-radius: 8px;
+  padding: 9px 20px !important;
+  font-size: 14px !important;
+  box-shadow: 0 0 20px var(--glow);
+  transition: all 0.2s !important;
+}
+.nav-cta:hover { background: var(--amazon-dark) !important; transform: translateY(-1px); box-shadow: 0 4px 30px var(--glow) !important; }
+
+.hamburger { display: none; background: none; border: none; cursor: pointer; color: #fff; font-size: 22px; }
+
+/* ── HERO ── */
+#hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  padding: 100px 80px 60px;
+  overflow: hidden;
+}
+.hero-content {
+  max-width: 580px;
+  z-index: 2;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,153,0,0.1);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: var(--amazon);
+  font-weight: 600;
+  margin-bottom: 28px;
+  animation: fadeInDown 0.6s ease both;
+}
+.badge-dot {
+  width: 8px; height: 8px;
+  background: var(--amazon);
+  border-radius: 50%;
+  animation: pulse-dot 2s infinite;
+}
+@keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(0.8)} }
+
+.hero-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(42px, 5.5vw, 72px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -2px;
+  margin-bottom: 24px;
+  animation: fadeInUp 0.7s 0.1s ease both;
+}
+.hero-title .line2 { color: var(--amazon); }
+.hero-title .gradient-text {
+  background: linear-gradient(135deg, #FF9900, #FFD700);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-desc {
+  font-size: 17px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 36px;
+  font-weight: 400;
+  animation: fadeInUp 0.7s 0.2s ease both;
+}
+
+.hero-ctas {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 50px;
+  animation: fadeInUp 0.7s 0.3s ease both;
+}
+.btn-primary {
+  background: var(--amazon);
+  color: #000;
+  border: none;
+  padding: 15px 32px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  box-shadow: 0 4px 30px var(--glow);
+}
+.btn-primary:hover { background: var(--amazon-dark); transform: translateY(-2px); box-shadow: 0 8px 40px var(--glow); }
+.btn-secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border-subtle);
+  padding: 15px 32px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  backdrop-filter: blur(10px);
+}
+.btn-secondary:hover { border-color: var(--amazon); color: var(--amazon); transform: translateY(-2px); }
+
+.hero-stats {
+  display: flex;
+  gap: 32px;
+  animation: fadeInUp 0.7s 0.4s ease both;
+}
+.hero-stat {}
+.hero-stat .num {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--amazon);
+  font-family: 'Space Grotesk', sans-serif;
+}
+.hero-stat .lbl {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+/* ── 3D FLOATING CARD ── */
+.hero-3d {
+  position: absolute;
+  right: 60px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  perspective: 1000px;
+  animation: fadeInRight 0.8s 0.3s ease both;
+}
+.card-3d-wrapper {
+  transform-style: preserve-3d;
+  animation: float3d 6s ease-in-out infinite;
+}
+@keyframes float3d {
+  0%,100% { transform: rotateX(2deg) rotateY(-10deg) translateY(0); }
+  50% { transform: rotateX(-2deg) rotateY(10deg) translateY(-20px); }
+}
+.profile-card-3d {
+  width: 320px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 32px;
+  backdrop-filter: blur(30px);
+  box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 60px rgba(255,153,0,0.1);
+  position: relative;
+  overflow: hidden;
+}
+.profile-card-3d::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--amazon), transparent);
+}
+.card-avatar {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--amazon), #FFD700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  margin: 0 auto 16px;
+  overflow: hidden;
+  box-shadow: 0 0 30px var(--glow);
+}
+.card-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+        object-position: center 30%;
+}
+.card-name {
+  text-align: center;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.card-title-text {
+  text-align: center;
+  color: var(--amazon);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  letter-spacing: 0.5px;
+}
+.card-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.skill-tag {
+  background: rgba(255,153,0,0.12);
+  border: 1px solid rgba(255,153,0,0.25);
+  color: var(--amazon);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 50px;
+  letter-spacing: 0.3px;
+}
+.card-divider { border: none; border-top: 1px solid var(--border-subtle); margin: 16px 0; }
+.card-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.card-metric {
+  text-align: center;
+  background: rgba(255,153,0,0.06);
+  border-radius: 10px;
+  padding: 12px 8px;
+}
+.card-metric .m-num { font-size: 20px; font-weight: 800; color: var(--amazon); }
+.card-metric .m-lbl { font-size: 10px; color: var(--text-muted); margin-top: 2px; font-weight: 500; }
+
+/* Rating Stars */
+.stars { color: var(--amazon); font-size: 16px; text-align: center; margin-top: 16px; }
+.available-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 14px;
+  font-size: 12px;
+  color: #4ade80;
+  font-weight: 600;
+}
+.avail-dot { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; animation: pulse-dot 2s infinite; }
+
+/* ── SCROLL INDICATOR ── */
+.scroll-indicator {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  animation: fadeIn 1s 1s ease both;
+  cursor: pointer;
+  z-index: 2;
+}
+.scroll-indicator span { font-size: 11px; color: var(--text-dim); font-weight: 500; letter-spacing: 1px; text-transform: uppercase; }
+.scroll-mouse {
+  width: 22px; height: 34px;
+  border: 2px solid var(--text-dim);
+  border-radius: 50px;
+  display: flex;
+  justify-content: center;
+  padding-top: 5px;
+}
+.scroll-wheel {
+  width: 3px; height: 7px;
+  background: var(--amazon);
+  border-radius: 3px;
+  animation: scrollWheel 2s infinite;
+}
+@keyframes scrollWheel { 0%{transform:translateY(0);opacity:1} 100%{transform:translateY(10px);opacity:0} }
+
+/* ── SECTION SHARED ── */
+section { position: relative; z-index: 1; }
+.section-inner { padding: 100px 80px; }
+.section-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--amazon);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.section-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(30px, 3.5vw, 48px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+}
+.section-desc {
+  font-size: 16px;
+  color: var(--text-muted);
+  max-width: 500px;
+  line-height: 1.7;
+}
+
+/* ── SERVICES ── */
+#services { background: rgba(13,31,60,0.4); }
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 60px;
+}
+.service-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  padding: 32px 28px;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+}
+.service-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--amazon), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.service-card:hover { border-color: var(--border); transform: translateY(-6px); box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+.service-card:hover::before { opacity: 1; }
+.service-card:hover .service-icon { transform: scale(1.15) rotate(5deg); }
+.service-icon {
+  font-size: 38px;
+  margin-bottom: 20px;
+  display: block;
+  transition: transform 0.3s;
+}
+.service-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  letter-spacing: -0.3px;
+}
+.service-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.service-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 18px;
+}
+.s-tag {
+  background: rgba(255,153,0,0.08);
+  border: 1px solid rgba(255,153,0,0.15);
+  color: var(--text-muted);
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 50px;
+  font-weight: 500;
+}
+
+/* ── METRICS ── */
+#metrics { background: transparent; }
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  margin-top: 60px;
+  background: var(--border-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  overflow: hidden;
+}
+.metric-block {
+  background: var(--card-bg);
+  padding: 40px 28px;
+  text-align: center;
+  transition: background 0.3s;
+  cursor: default;
+  backdrop-filter: blur(20px);
+}
+.metric-block:hover { background: rgba(255,153,0,0.08); }
+.metric-num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--amazon);
+  letter-spacing: -2px;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+.metric-lbl {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-weight: 500;
+  line-height: 1.4;
+}
+.metric-sub {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+/* ── TOOLS / TECH ── */
+#tools { background: rgba(13,31,60,0.4); }
+.tools-header { margin-bottom: 50px; }
+.tools-categories {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+}
+.tool-cat-btn {
+  background: rgba(255,153,0,0.06);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  padding: 9px 20px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.tool-cat-btn.active, .tool-cat-btn:hover {
+  background: var(--amazon);
+  color: #000;
+  border-color: var(--amazon);
+}
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 14px;
+}
+.tool-item {
+  background: var(--card-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 20px 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s;
+  backdrop-filter: blur(20px);
+}
+.tool-item:hover { border-color: var(--amazon); transform: translateY(-4px); box-shadow: 0 10px 30px rgba(255,153,0,0.15); }
+.tool-emoji { font-size: 26px; margin-bottom: 8px; display: block; }
+.tool-name { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+
+/* ── EXPERIENCE ── */
+#experience { background: transparent; }
+.exp-timeline {
+  margin-top: 60px;
+  position: relative;
+}
+.exp-timeline::before {
+  content: '';
+  position: absolute;
+  left: 28px;
+  top: 0; bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--amazon), transparent);
+}
+.exp-item {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 50px;
+  position: relative;
+  animation: fadeInLeft 0.6s ease both;
+}
+.exp-dot-wrap {
+  flex-shrink: 0;
+  width: 56px;
+  display: flex;
+  justify-content: center;
+  padding-top: 4px;
+}
+.exp-dot {
+  width: 18px; height: 18px;
+  background: var(--amazon);
+  border-radius: 50%;
+  box-shadow: 0 0 20px var(--glow);
+  position: relative;
+  flex-shrink: 0;
+}
+.exp-dot::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border: 2px solid rgba(255,153,0,0.3);
+  border-radius: 50%;
+  animation: pulse-ring 2s infinite;
+}
+@keyframes pulse-ring { 0%,100%{opacity:0.6;transform:scale(1)} 50%{opacity:0;transform:scale(1.4)} }
+.exp-body {
+  background: var(--card-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 28px 32px;
+  flex: 1;
+  transition: border-color 0.3s;
+  backdrop-filter: blur(20px);
+}
+.exp-body:hover { border-color: var(--border); }
+.exp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.exp-role {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+.exp-period {
+  background: rgba(255,153,0,0.1);
+  color: var(--amazon);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 50px;
+  border: 1px solid rgba(255,153,0,0.2);
+}
+.exp-company { color: var(--amazon); font-size: 14px; font-weight: 600; margin-bottom: 14px; }
+.exp-bullets { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.exp-bullets li {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  display: flex;
+  gap: 10px;
+}
+.exp-bullets li::before { content: '▸'; color: var(--amazon); flex-shrink: 0; }
+
+/* ── TESTIMONIALS ── */
+#testimonials { background: rgba(13,31,60,0.4); }
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 60px;
+}
+.testi-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  padding: 30px;
+  transition: all 0.3s;
+  backdrop-filter: blur(20px);
+  cursor: default;
+}
+.testi-card:hover { border-color: var(--border); transform: translateY(-4px); }
+.testi-stars { color: var(--amazon); font-size: 14px; margin-bottom: 16px; letter-spacing: 2px; }
+.testi-text {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 20px;
+  font-style: italic;
+}
+.testi-author { display: flex; align-items: center; gap: 12px; }
+.testi-avatar {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.testi-name { font-weight: 700; font-size: 14px; }
+.testi-role { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+/* ── PRICING ── */
+#pricing { background: transparent; }
+.pricing-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 30px;
+  margin-bottom: 50px;
+}
+.pricing-toggle span { font-size: 14px; color: var(--text-muted); font-weight: 500; }
+.toggle-switch {
+  width: 48px; height: 26px;
+  background: var(--amazon);
+  border-radius: 13px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.3s;
+}
+.toggle-knob {
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 20px; height: 20px;
+  background: #000;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+.toggle-switch.active .toggle-knob { transform: translateX(22px); }
+.save-badge {
+  background: rgba(74,222,128,0.15);
+  color: #4ade80;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 50px;
+  border: 1px solid rgba(74,222,128,0.3);
+}
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.price-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: 24px;
+  padding: 36px 32px;
+  transition: all 0.3s;
+  backdrop-filter: blur(20px);
+  position: relative;
+  overflow: hidden;
+}
+.price-card.popular {
+  border-color: var(--amazon);
+  background: rgba(255,153,0,0.08);
+  transform: scale(1.04);
+}
+.price-card.popular::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--amazon), #FFD700);
+}
+.price-card:not(.popular):hover { border-color: var(--border); transform: translateY(-4px); }
+.popular-badge {
+  display: inline-block;
+  background: var(--amazon);
+  color: #000;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 5px 14px;
+  border-radius: 50px;
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.price-plan { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+.price-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5; }
+.price-amount {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 46px;
+  font-weight: 800;
+  color: var(--amazon);
+  letter-spacing: -2px;
+  line-height: 1;
+}
+.price-period { font-size: 14px; color: var(--text-muted); font-weight: 500; }
+.price-hr { border: none; border-top: 1px solid var(--border-subtle); margin: 24px 0; }
+.price-features { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+.price-features li { font-size: 14px; color: var(--text-muted); display: flex; gap: 10px; align-items: flex-start; }
+.price-features li .chk { color: var(--amazon); font-weight: 700; flex-shrink: 0; }
+.price-features li .x { color: var(--text-dim); flex-shrink: 0; }
+.btn-plan {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+.btn-plan-primary { background: var(--amazon); color: #000; box-shadow: 0 4px 20px var(--glow); }
+.btn-plan-primary:hover { background: var(--amazon-dark); transform: translateY(-1px); }
+.btn-plan-secondary { background: transparent; color: var(--text); border: 1px solid var(--border-subtle); }
+.btn-plan-secondary:hover { border-color: var(--amazon); color: var(--amazon); }
+
+/* ── CONTACT ── */
+#contact { background: rgba(13,31,60,0.4); }
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  margin-top: 60px;
+  align-items: start;
+}
+.contact-info { display: flex; flex-direction: column; gap: 24px; }
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 20px 22px;
+  transition: all 0.3s;
+  cursor: pointer;
+  backdrop-filter: blur(20px);
+  text-decoration: none;
+  color: inherit;
+}
+.contact-item:hover { border-color: var(--amazon); transform: translateX(6px); }
+.contact-icon {
+  width: 46px; height: 46px;
+  background: rgba(255,153,0,0.1);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,153,0,0.2);
+}
+.contact-label { font-size: 11px; color: var(--text-dim); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 3px; }
+.contact-value { font-size: 15px; font-weight: 600; }
+.contact-form { display: flex; flex-direction: column; gap: 16px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 7px; }
+.form-group label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.form-group input, .form-group select, .form-group textarea {
+  background: rgba(22,41,71,0.8);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 13px 16px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: border-color 0.2s;
+  resize: none;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--amazon); }
+.form-group select option { background: var(--navy); }
+.form-group textarea { min-height: 110px; }
+.btn-submit {
+  background: var(--amazon);
+  color: #000;
+  border: none;
+  padding: 15px 32px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+  box-shadow: 0 4px 20px var(--glow);
+}
+.btn-submit:hover { background: var(--amazon-dark); transform: translateY(-2px); box-shadow: 0 8px 30px var(--glow); }
+
+/* ── FOOTER ── */
+footer {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--border-subtle);
+  padding: 40px 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  background: rgba(10,22,40,0.8);
+  backdrop-filter: blur(20px);
+}
+.footer-logo { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 18px; }
+.footer-logo span { color: var(--amazon); }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight: 500; cursor: pointer; transition: color 0.2s; }
+.footer-links a:hover { color: var(--amazon); }
+.footer-copy { font-size: 13px; color: var(--text-dim); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: var(--navy-light);
+  border: 1px solid var(--amazon);
+  color: #fff;
+  padding: 16px 22px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 1000;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+  max-width: 320px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* ── MOBILE MENU ── */
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 70px; left: 0; right: 0;
+  background: rgba(10,22,40,0.98);
+  backdrop-filter: blur(30px);
+  border-bottom: 1px solid var(--border-subtle);
+  z-index: 99;
+  flex-direction: column;
+  padding: 20px;
+  gap: 4px;
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 14px 18px;
+  border-radius: 10px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.mobile-menu a:hover { background: rgba(255,153,0,0.1); color: var(--amazon); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeInDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeInUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeInLeft { from{opacity:0;transform:translateX(-30px)} to{opacity:1;transform:translateX(0)} }
+@keyframes fadeInRight { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+.reveal { opacity: 0; transform: translateY(40px); transition: all 0.7s cubic-bezier(0.16,1,0.3,1); }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── COUNTER ANIMATION ── */
+.count-up { display: inline-block; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1100px) {
+  .services-grid { grid-template-columns: repeat(2, 1fr); }
+  .testimonials-grid { grid-template-columns: repeat(2, 1fr); }
+  .pricing-grid { grid-template-columns: 1fr; max-width: 460px; }
+  .price-card.popular { transform: scale(1); }
+  .metrics-row { grid-template-columns: repeat(2, 1fr); }
+  .hero-3d { display: none; }
+  .hero-content { max-width: 100%; }
+}
+@media (max-width: 768px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .hamburger { display: block; }
+  .section-inner { padding: 70px 24px; }
+  #hero { padding: 100px 24px 80px; }
+  .services-grid { grid-template-columns: 1fr; }
+  .testimonials-grid { grid-template-columns: 1fr; }
+  .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+  .form-row { grid-template-columns: 1fr; }
+  .metrics-row { grid-template-columns: repeat(2, 1fr); }
+  footer { padding: 30px 24px; flex-direction: column; text-align: center; }
+  .footer-links { flex-wrap: wrap; justify-content: center; gap: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+
+<!-- Canvas -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <a onclick="scrollToSection('services')">Services</a>
+  <a onclick="scrollToSection('metrics')">Results</a>
+  <a onclick="scrollToSection('tools')">Tools</a>
+  <a onclick="scrollToSection('experience')">Experience</a>
+  <a onclick="scrollToSection('testimonials')">Reviews</a>
+  <a onclick="scrollToSection('pricing')">Pricing</a>
+  <a onclick="scrollToSection('contact')">Contact</a>
+</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-logo">
+    <div class="logo-icon">
+    <img src="image.jpg.png" alt="Logo">
+</div>
+    <div class="logo-text">Muhammad. <span>SOHAIL</span></div>
+  </div>
+  <div class="nav-links">
+    <a onclick="scrollToSection('services')">Services</a>
+    <a onclick="scrollToSection('metrics')">Results</a>
+    <a onclick="scrollToSection('tools')">Tools</a>
+    <a onclick="scrollToSection('experience')">Experience</a>
+    <a onclick="scrollToSection('testimonials')">Reviews</a>
+    <a onclick="scrollToSection('pricing')">Pricing</a>
+    <a class="nav-cta" onclick="scrollToSection('contact')">Hire Me →</a>
+  </div>
+  <button class="hamburger" onclick="toggleMobileMenu()">☰</button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Available for New Clients
+    </div>
+    <h1 class="hero-title">
+      Amazon VA<br>
+      <span class="line2">That Grows</span><br>
+      <span class="gradient-text">Your Store</span>
+    </h1>
+    <p class="hero-desc">
+      I'm Muhammad Sohail — an expert Amazon Virtual Assistant specializing in product listing optimization, PPC management, competitor analysis, and full-service seller account management. Let's scale your store to 7 figures.
+    </p>
+    <div class="hero-ctas">
+      <button class="btn-primary" onclick="scrollToSection('contact')">
+        📩 Get Free Audit
+      </button>
+      <button class="btn-secondary" onclick="scrollToSection('services')">
+        🔍 View Services
+      </button>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="num">150+</div>
+        <div class="lbl">Clients Served</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">$4.2M</div>
+        <div class="lbl">Revenue Generated</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">4.9★</div>
+        <div class="lbl">Client Rating</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-3d">
+    <div class="card-3d-wrapper" id="card3d">
+      <div class="profile-card-3d">
+       <div class="card-avatar">
+    <img src="profile.png.jpeg">
+</div>
+        <div class="card-name">Muhammad Sohail</div>
+        <div class="card-title-text">Amazon Virtual Assistant </div>
+        <div class="card-skills">
+          <span class="skill-tag">PPC Expert</span>
+          <span class="skill-tag">SEO Listing</span>
+          <span class="skill-tag">FBA/FBM</span>
+          <span class="skill-tag">sourcing specialist</span>
+          <span class="skill-tag">Analytics</span>
+          <span class="skill-tag">A+ Content</span>
+          <span class="skill-tag">listing optimization expert</span>
+        </div>
+        <hr class="card-divider">
+        <div class="card-metrics">
+          <div class="card-metric">
+            <div class="m-num">80+</div>
+            <div class="m-lbl">Clients</div>
+          </div>
+          <div class="card-metric">
+            <div class="m-num">5yr</div>
+            <div class="m-lbl">Experience</div>
+          </div>
+          <div class="card-metric">
+            <div class="m-num">$4.2M</div>
+            <div class="m-lbl">Revenue</div>
+          </div>
+          <div class="card-metric">
+            <div class="m-num">98%</div>
+            <div class="m-lbl">Success Rate</div>
+          </div>
+        </div>
+        <div class="stars">★★★★★</div>
+        <div class="available-badge">
+          <span class="avail-dot"></span>
+          Open to new clients
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-indicator" onclick="scrollToSection('services')">
+    <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">What I Do</div>
+      <h2 class="section-title">End-to-End Amazon<br>Store Management</h2>
+      <p class="section-desc">From product research to PPC campaigns — I handle everything so you can focus on growth.</p>
+    </div>
+    <div class="services-grid reveal">
+      <div class="service-card">
+        <span class="service-icon">🔍</span>
+        <div class="service-name">Product Research</div>
+        <p class="service-desc">Data-driven product hunting using Helium10 & Jungle Scout. I find winning niches with high demand and low competition for maximum ROI.</p>
+        <div class="service-tags">
+          <span class="s-tag">Helium10</span>
+          <span class="s-tag">Jungle Scout</span>
+          <span class="s-tag">Market Analysis</span>
+        </div>
+      </div>
+      <div class="service-card">
+        <span class="service-icon">📝</span>
+        <div class="service-name">Listing Optimization</div>
+        <p class="service-desc">SEO-optimized product titles, bullet points, and descriptions. A9 algorithm expertise to maximize organic rankings and conversion rates.</p>
+        <div class="service-tags">
+          <span class="s-tag">Keyword Research</span>
+          <span class="s-tag">A+ Content</span>
+          <span class="s-tag">Backend SEO</span>
+        </div>
+      </div>
+      <div class="service-card">
+        <span class="service-icon">📈</span>
+        <div class="service-name">PPC Management</div>
+        <p class="service-desc">Profitable Amazon Sponsored Ads campaigns — Sponsored Products, Brands & Display. Bid optimization to maximize ROAS and minimize ACoS.</p>
+        <div class="service-tags">
+          <span class="s-tag">Sponsored Products</span>
+          <span class="s-tag">DSP</span>
+          <span class="s-tag">ROAS Optimization</span>
+        </div>
+      </div>
+      <div class="service-card">
+        <span class="service-icon">📦</span>
+        <div class="service-name">FBA / Inventory Management</div>
+        <p class="service-desc">Seamless FBA shipment creation, inventory forecasting, and replenishment planning. Never run out of stock or pay excess storage fees again.</p>
+        <div class="service-tags">
+          <span class="s-tag">FBA Shipments</span>
+          <span class="s-tag">Reorder Planning</span>
+          <span class="s-tag">IPI Score</span>
+        </div>
+      </div>
+      <div class="service-card">
+        <span class="service-icon">🌍</span>
+        <div class="service-name">Alibaba China Sourcing Specialist</div>
+        <p class="service-desc">Source high-quality products directly from Alibaba China with trusted supplier selection and efficient sourcing strategies. Focus on finding reliable manufacturers, comparing quotations, and securing competitive pricing to support profitable and scalable business growth.</p>
+        <div class="service-tags">
+          <span class="s-tag">Alibaba</span>
+          <span class="s-tag">Supplier Vetting</span>
+          <span class="s-tag">1688</span>
+        </div>
+      </div>
+      <div class="service-card">
+        <span class="service-icon">📊</span>
+        <div class="service-name">Analytics & Reporting</div>
+        <p class="service-desc">Detailed weekly and monthly performance reports. Competitor tracking, sales velocity analysis, and actionable strategy recommendations.</p>
+        <div class="service-tags">
+          <span class="s-tag">Seller Central</span>
+          <span class="s-tag">DataDive</span>
+          <span class="s-tag">Custom Dashboards</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- METRICS -->
+<section id="metrics">
+  <div class="section-inner">
+    <div class="reveal" style="text-align:center">
+      <div class="section-label">Proven Results</div>
+      <h2 class="section-title">Numbers That Speak</h2>
+    </div>
+    <div class="metrics-row reveal">
+      <div class="metric-block">
+        <div class="metric-num"><span class="count-up" data-target="100">0</span>+</div>
+        <div class="metric-lbl">Amazon Sellers<br>Helped to Scale</div>
+        <div class="metric-sub">Across US, UK & CA marketplaces</div>
+      </div>
+      <div class="metric-block">
+        <div class="metric-num">$<span class="count-up" data-target="4.2" data-decimal="1">0</span>M</div>
+        <div class="metric-lbl">Total Revenue<br>Generated</div>
+        <div class="metric-sub">For clients in 2024 alone</div>
+      </div>
+      <div class="metric-block">
+        <div class="metric-num"><span class="count-up" data-target="20">0</span>%</div>
+        <div class="metric-lbl">Average ACoS<br>Reduction</div>
+        <div class="metric-sub">Within first 1 months</div>
+      </div>
+      <div class="metric-block">
+        <div class="metric-num"><span class="count-up" data-target="98">0</span>%</div>
+        <div class="metric-lbl">Client Retention<br>Rate</div>
+        <div class="metric-sub">Most clients stay 12+ months</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOOLS -->
+<section id="tools">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">Tech Stack</div>
+      <h2 class="section-title">Tools & Platforms</h2>
+      <p class="section-desc">I'm proficient in every major Amazon seller tool and platform to give your business a data-driven edge.</p>
+    </div>
+    <div class="tools-categories reveal" id="toolCategories">
+      <button class="tool-cat-btn active" onclick="filterTools('all', this)">All Tools</button>
+      <button class="tool-cat-btn" onclick="filterTools('research', this)">Research</button>
+      <button class="tool-cat-btn" onclick="filterTools('ppc', this)">PPC & Ads</button>
+      <button class="tool-cat-btn" onclick="filterTools('design', this)">Design</button>
+      <button class="tool-cat-btn" onclick="filterTools('management', this)">Management</button>
+      <button class="tool-cat-btn" onclick="filterTools('Analytics & Reporting', this)">Analytics & Reporting</button>
+    </div>
+    </div>
+    <div class="tools-grid reveal" id="toolsGrid"></div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">My Journey</div>
+      <h2 class="section-title">5 Years of Amazon<br>Expertise</h2>
+    </div>
+    <div class="exp-timeline">
+      <div class="exp-item reveal" style="transition-delay:0.1s">
+        <div class="exp-dot-wrap"><div class="exp-dot"></div></div>
+        <div class="exp-body">
+          <div class="exp-header">
+            <div class="exp-role">Senior Amazon VA & PPC Specialist</div>
+            <div class="exp-period">2023 — Present</div>
+          </div>
+          <div class="exp-company">Freelance · Remote Worldwide</div>
+          <ul class="exp-bullets">
+            <li>Managing PPC campaigns for 12+ active clients across US and UK marketplaces, maintaining an average ACoS of 18%</li>
+            <li>Scaled 3 brands from under $10K/mo to $80K+ monthly revenue through listing overhauls and targeted ad strategies</li>
+            <li>Developed keyword research SOPs adopted by multiple e-commerce agencies</li>
+            <li>Expert in Helium10 Magnet, Cerebro, and Frankenstein for deep keyword and competitor analysis</li>
+          </ul>
+        </div>
+      </div>
+      <div class="exp-item reveal" style="transition-delay:0.2s">
+        <div class="exp-dot-wrap"><div class="exp-dot"></div></div>
+        <div class="exp-body">
+          <div class="exp-header">
+            <div class="exp-role">Amazon Account Manager</div>
+            <div class="exp-period">2021 — 2023</div>
+          </div>
+          <div class="exp-company">EcomVault Agency · New York (Remote)</div>
+          <ul class="exp-bullets">
+            <li>Managed a portfolio of 20+ Seller Central accounts totaling over $2M in monthly sales</li>
+            <li>Led FBA inventory planning and reduced stockout rate by 67% using reorder automation</li>
+            <li>Created and optimized over 500+ product listings with A+ content and enhanced brand pages</li>
+            <li>Trained and onboarded 6 junior VAs, building internal SOPs for listing and PPC workflows</li>
+          </ul>
+        </div>
+      </div>
+      <div class="exp-item reveal" style="transition-delay:0.3s">
+        <div class="exp-dot-wrap"><div class="exp-dot"></div></div>
+        <div class="exp-body">
+          <div class="exp-header">
+            <div class="exp-role">Amazon FBA / FBM Virtual Assistant</div>
+            <div class="exp-period">2019 — 2021</div>
+          </div>
+          <div class="exp-company">Amazon Listing Optimization · Content Specialist</div>
+          <ul class="exp-bullets">
+            <li>Optimized Amazon product listings with strategic keyword research, compelling titles, bullet points, and descriptions to improve visibility and conversion rates.</li>
+            <li>Developed SEO-focused content strategies by identifying high-value keywords and integrating them naturally into listings to enhance organic ranking performance.</li>
+            <li>Enhanced product discoverability and customer engagement through data-driven listing improvements, competitor analysis, and continuous content refinement aligned with Amazon best practices.</li>
+            <li>Handled complete seller account setup, brand registry enrollment, and ASIN troubleshooting</li>
+            </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">Client Love</div>
+      <h2 class="section-title">What My Clients Say</h2>
+      <p class="section-desc">Real results from real Amazon sellers I've worked with.</p>
+    </div>
+    <div class="testimonials-grid" id="testiGrid"></div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">Investment</div>
+      <h2 class="section-title">Transparent Pricing</h2>
+      <p class="section-desc">Simple plans tailored to where you are in your Amazon journey.</p>
+      <div class="pricing-toggle reveal">
+        <span>Monthly</span>
+        <div class="toggle-switch" id="billingToggle" onclick="toggleBilling()">
+          <div class="toggle-knob" id="toggleKnob"></div>
+        </div>
+        <span>Quarterly</span>
+        <span class="save-badge">Save 20%</span>
+      </div>
+    </div>
+    <div class="pricing-grid reveal" id="pricingGrid"></div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-label">Let's Work Together</div>
+      <h2 class="section-title">Ready to Scale<br>Your Amazon Store?</h2>
+      <p class="section-desc">Get a free 30-minute strategy session and account audit. No commitment required.</p>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-info reveal">
+        <a class="contact-item" href="mailto:raosohail20450@gmail.com">
+          <div class="contact-icon">📧</div>
+          <div>
+            <div class="contact-label">Email</div>
+            <div class="contact-value">raosohail20450@gmail.com</div>
+          </div>
+        </a>
+        <a class="contact-item" href="https://wa.me/923037047173" target="_blank">
+          <div class="contact-icon">💬</div>
+          <div>
+            <div class="contact-label">WhatsApp</div>
+            <div class="contact-value">+92 303 7047173</div>
+          </div>
+        </a>
+        <a class="contact-item" href="https://www.linkedin.com/in/muhammad-sohail-499a592b0" target="_blank">
+          <div class="contact-icon">💼</div>
+          <div>
+            <div class="contact-label">linkedin</div>
+            <div class="contact-value">https://www.linkedin.com/in/muhammad-sohail-499a592b0?utm_source=share_via&utm_content=profile&utm_medium=member_android</div>
+          </div>
+        </a>
+        <a class="contact-item" href="https://www.facebook.com/muhammad.sohail.415288" target="_blank">
+          <div class="contact-icon">f</div>
+          <div>
+            <div class="contact-label">facebook</div>
+            <div class="contact-value">https://www.facebook.com/muhammad.sohail.415288?mibextid=ZbWKwL</div>
+          </div>
+        </a>
+         <a class="contact-item" href="https://www.instagram.com/theamazongrowthguy" target="_blank">
+          <div class="contact-icon">i</div>
+          <div>
+            <div class="contact-label">instagram</div>
+            <div class="contact-value">https://www.instagram.com/theamazongrowthguy?igsh=dDM5NXc1Y291MmI3</div>
+          </div>
+        </a>
+      </div>
+      <div class="reveal" style="transition-delay:0.2s">
+        <form class="contact-form" onsubmit="handleSubmit(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Your Name</label>
+             <input type="text" id="name" placeholder="John Smith" required />
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="email" placeholder="john@store.com" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Amazon Store / Niche</label>
+            <input type="text" id="store" placeholder="e.g. Home & Kitchen, Pet Supplies..." />
+          </div>
+          <div class="form-group">
+            <label>Monthly Revenue</label>
+            <select id="revenue">
+              <option value="">Select range...</option>
+              <option>Just starting out ($0–$1K)</option>
+              <option>Growing ($1K–$10K)</option>
+              <option>Scaling ($10K–$50K)</option>
+              <option>Established ($50K–$200K)</option>
+              <option>Enterprise ($200K+)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Service Needed</label>
+            <select id="service">
+              <option value="">Select service...</option>
+              <option>Product Research</option>
+              <option>Listing Optimization</option>
+              <option>PPC Management</option>
+              <option>Full Account Management</option>
+              <option>FBA/FBM Setup</option>
+              <option>Everything (Full VA Package)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Message</label>
+            <textarea id="message" placeholder="Tell me about your store, goals, and challenges..."></textarea>
+          </div>
+          <button type="submit" class="btn-submit">
+            🚀 Send Message & Get Free Audit
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Muhammad <span>Sohail</span></div>
+  <div class="footer-links">
+    <a onclick="scrollToSection('services')">Services</a>
+    <a onclick="scrollToSection('pricing')">Pricing</a>
+    <a onclick="scrollToSection('testimonials')">Reviews</a>
+    <a onclick="scrollToSection('contact')">Contact</a>
+  </div>
+  <div class="footer-copy">©. Built for Amazon success. All Rights Reserved.</div>
+  <div class="footer-copy">© raosohail20450@gmail.com</div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+  emailjs.init("LhgBUgdERO6708gdK");
+// ── DATA ──
+const tools = [
+  { name:"Helium 10", emoji:"🔬", cat:"research"},
+  { name:"Jungle Scout", emoji:"🌿", cat:"research" },
+  { name:"Seller Board", emoji:"💹", cat:"ppc" },
+  { name:"Perpetua", emoji:"⚙️", cat:"ppc" },
+  { name:"Amazon Advertising Console", emoji:"📡", cat:"ppc" },
+  { name:"Canva", emoji:"🎨", cat:"design" },
+  { name:"Photoshop", emoji:"🖼️", cat:"design" },
+  { name:"Pixelied", emoji:"✏️", cat:"design" },
+  { name:"Strikingly", emoji:"⚡", cat:"design" },
+  { name:"Seller Central", emoji:"🛒", cat:"management" },
+  { name:"Restock Pro", emoji:"📦", cat:"management" },
+  { name:"Inventory Lab", emoji:"🧪", cat:"management" },
+  { name:"Slack", emoji:"💼", cat:"management" },
+  { name:"Trello", emoji:"📋", cat:"management" },
+  { name:"Google Sheets", emoji:"📗", cat:"Analytics & Reporting" },
+  { name:"Notion", emoji:"📒", cat:"management" },
+  { name:"Microsoft Excel", emoji:"📊", cat:"Analytics & Reporting" },
+  { name:"Seller Central Reports", emoji:"📋", cat:"Analytics & Reporting" },
+  { name:"Helium 10 Analytics", emoji:"🔬", cat:"Analytics & Reporting" },
+];
+
+const testimonials = [
+  { stars:5, text:"Aria completely transformed our PPC strategy. Our ACoS dropped from 52% to 19% in just 8 weeks. We're now consistently profitable and she manages everything seamlessly.", name:"Marcus T.", role:"Amazon Seller · Home & Kitchen", emoji:"👨‍💼", color:"#1E3A5F" },
+  { stars:5, text:"I was skeptical hiring a VA remotely but Aria exceeded every expectation. She found us 4 winning products that each crossed $15K/mo within 6 months. Worth every penny.", name:"Sarah K.", role:"FBA Private Label Brand", emoji:"👩‍💼", color:"#2D1B3A" },
+  { stars:5, text:"The listing optimization she did for our top 10 ASINs resulted in a 34% increase in organic sales. Her keyword research is incredibly thorough and always data-backed.", name:"James R.", role:"7-Figure Amazon Brand", emoji:"🧔", color:"#1A3020" },
+  { stars:5, text:"Aria handles our full account — from inventory to PPC to customer feedback. It's like having a full-time Amazon employee at a fraction of the cost. Highly recommend!", name:"Linda P.", role:"Pet Supplies Brand Owner", emoji:"👱‍♀️", color:"#2A1810" },
+  { stars:5, text:"We went from $8K to $65K monthly revenue in under a year working with Aria. Her product research process is incredibly systematic and she keeps us ahead of competitors.", name:"David W.", role:"US-based FBA Seller", emoji:"🧑‍💻", color:"#1E2E40" },
+  { stars:5, text:"Best investment for my Amazon business. Aria built our entire brand from scratch — product research, listing, A+ content, PPC. We hit 6 figures in month 9.", name:"Priya M.", role:"Beauty & Skincare Brand", emoji:"💁‍♀️", color:"#2E1A2E" },
+];
+
+const pricingPlans = [
+  {
+    name: "Starter",
+    desc: "Perfect for new sellers launching their first products on Amazon.",
+    monthly: 299,
+    quarterly: 239,
+    popular: false,
+    features: [
+      { text: "1 Product Research / month", included: true },
+      { text: "Full Listing Optimization", included: true },
+      { text: "Basic PPC Campaign Setup", included: true },
+      { text: "Weekly Performance Report", included: true },
+      { text: "Email & Chat Support", included: true },
+      { text: "FBA Shipment Management", included: false },
+      { text: "A+ Content Creation", included: false },
+      { text: "Dedicated Account Manager", included: false },
+    ]
+  },
+  {
+    name: "Growth",
+    desc: "For active sellers ready to scale revenue and optimize profitability.",
+    monthly: 699,
+    quarterly: 559,
+    popular: true,
+    features: [
+      { text: "3 Product Researches / month", included: true },
+      { text: "Full Listing Optimization", included: true },
+      { text: "Advanced PPC Management", included: true },
+      { text: "FBA Inventory Management", included: true },
+      { text: "A+ Content Creation", included: true },
+      { text: "Competitor Tracking Reports", included: true },
+      { text: "Priority Support (24hr)", included: true },
+      { text: "Dedicated Account Manager", included: false },
+    ]
+  },
+  {
+    name: "Scale",
+    desc: "Full-service management for established brands serious about dominating Amazon.",
+    monthly: 1299,
+    quarterly: 1039,
+    popular: false,
+    features: [
+      { text: "Unlimited Product Research", included: true },
+      { text: "Full Listing Optimization", included: true },
+      { text: "Multi-Campaign PPC Management", included: true },
+      { text: "FBA + FBM Hybrid Management", included: true },
+      { text: "A+ Content + Brand Store", included: true },
+      { text: "Dedicated Account Manager", included: true },
+      { text: "Weekly Strategy Calls", included: true },
+      { text: "Marketplace Expansion Support", included: true },
+    ]
+  }
+];
+
+let isQuarterly = false;
+let currentToolFilter = 'all';
+
+// ── CANVAS PARTICLES ──
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [], mouseX = 0, mouseY = 0;
+
+function resizeCanvas() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+
+class Particle {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * W;
+    this.y = Math.random() * H;
+    this.size = Math.random() * 2 + 0.3;
+    this.speedX = (Math.random() - 0.5) * 0.4;
+    this.speedY = (Math.random() - 0.5) * 0.4;
+    this.opacity = Math.random() * 0.4 + 0.05;
+    this.color = Math.random() > 0.85 ? '#FF9900' : '#8BA3C7';
+  }
+  update() {
+    this.x += this.speedX;
+    this.y += this.speedY;
+    const dx = mouseX - this.x, dy = mouseY - this.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist < 120) {
+      this.x -= dx * 0.008;
+      this.y -= dy * 0.008;
+    }
+    if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
+  }
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
+    ctx.fillStyle = this.color;
+    ctx.globalAlpha = this.opacity;
+    ctx.fill();
+  }
+}
+
+function initParticles() {
+  particles = [];
+  for (let i = 0; i < 120; i++) particles.push(new Particle());
+}
+
+function drawLines() {
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i+1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < 110) {
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = '#FF9900';
+        ctx.globalAlpha = (1 - dist/110) * 0.06;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+function animateCanvas() {
+  ctx.clearRect(0, 0, W, H);
+  // Background gradient
+  const grad = ctx.createRadialGradient(W*0.7, H*0.3, 0, W*0.7, H*0.3, W*0.7);
+  grad.addColorStop(0, 'rgba(30,58,95,0.3)');
+  grad.addColorStop(1, 'rgba(10,22,40,0)');
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+  
+  particles.forEach(p => { p.update(); p.draw(); });
+  drawLines();
+  requestAnimationFrame(animateCanvas);
+}
+
+window.addEventListener('resize', () => { resizeCanvas(); initParticles(); });
+window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+resizeCanvas();
+initParticles();
+animateCanvas();
+
+// ── CUSTOM CURSOR ──
+const cursor = document.getElementById('cursor');
+const cursorDot = document.getElementById('cursorDot');
+let cursorX = 0, cursorY = 0, dotX = 0, dotY = 0;
+document.addEventListener('mousemove', e => { cursorX = e.clientX; cursorY = e.clientY; });
+function animateCursor() {
+  dotX += (cursorX - dotX) * 0.15;
+  dotY += (cursorY - dotY) * 0.15;
+  cursor.style.left = dotX + 'px';
+  cursor.style.top = dotY + 'px';
+  cursorDot.style.left = cursorX + 'px';
+  cursorDot.style.top = cursorY + 'px';
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+document.querySelectorAll('button, a, .service-card, .contact-item, .tool-item').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+  el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+});
+
+// ── NAV SCROLL ──
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('navbar');
+  nav.classList.toggle('scrolled', window.scrollY > 60);
+});
+
+// ── SCROLL HELPER ──
+function scrollToSection(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('mobileMenu')?.classList.remove('open');
+}
+
+// ── MOBILE MENU ──
+function toggleMobileMenu() {
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
+
+// ── TOOLS RENDER ──
+function renderTools(filter) {
+  const grid = document.getElementById('toolsGrid');
+  const filtered = filter === 'all' ? tools : tools.filter(t => t.cat === filter);
+  grid.innerHTML = filtered.map(t => `
+    <div class="tool-item">
+      <span class="tool-emoji">${t.emoji}</span>
+      <div class="tool-name">${t.name}</div>
+    </div>
+  `).join('');
+}
+
+function filterTools(cat, btn) {
+  currentToolFilter = cat;
+  document.querySelectorAll('.tool-cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTools(cat);
+}
+
+// ── TESTIMONIALS RENDER ──
+function renderTestimonials() {
+  const grid = document.getElementById('testiGrid');
+  grid.innerHTML = testimonials.map(t => `
+    <div class="testi-card reveal">
+      <div class="testi-stars">${'★'.repeat(t.stars)}</div>
+      <p class="testi-text">"${t.text}"</p>
+      <div class="testi-author">
+        <div class="testi-avatar" style="background:${t.color}">${t.emoji}</div>
+        <div>
+          <div class="testi-name">${t.name}</div>
+          <div class="testi-role">${t.role}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── PRICING RENDER ──
+function renderPricing() {
+  const grid = document.getElementById('pricingGrid');
+  grid.innerHTML = pricingPlans.map(p => {
+    const price = isQuarterly ? p.quarterly : p.monthly;
+    return `
+    <div class="price-card ${p.popular ? 'popular' : ''}">
+      ${p.popular ? '<div class="popular-badge">⭐ Most Popular</div>' : ''}
+      <div class="price-plan">${p.name}</div>
+      <div class="price-desc">${p.desc}</div>
+      <div>
+        <span class="price-amount">$${price}</span>
+        <span class="price-period"> / ${isQuarterly ? 'mo (billed quarterly)' : 'month'}</span>
+      </div>
+      <hr class="price-hr">
+      <ul class="price-features">
+        ${p.features.map(f => `
+          <li>
+            <span class="${f.included ? 'chk' : 'x'}">${f.included ? '✓' : '✗'}</span>
+            <span style="${!f.included ? 'opacity:0.4;text-decoration:line-through' : ''}">${f.text}</span>
+          </li>
+        `).join('')}
+      </ul>
+      <button class="btn-plan ${p.popular ? 'btn-plan-primary' : 'btn-plan-secondary'}" onclick="scrollToSection('contact')">
+        ${p.popular ? 'Get Started →' : 'Choose Plan'}
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function toggleBilling() {
+  isQuarterly = !isQuarterly;
+  document.getElementById('billingToggle').classList.toggle('active', isQuarterly);
+  renderPricing();
+}
+
+// ── INTERSECTION OBSERVER ──
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+function observeReveal() {
+  document.querySelectorAll('.reveal').forEach(el => {
+    if (!el.classList.contains('visible')) revealObserver.observe(el);
+  });
+}
+
+// ── COUNT UP ANIMATION ──
+function animateCountUp(el) {
+  const target = parseFloat(el.dataset.target);
+  const decimal = parseInt(el.dataset.decimal || '0');
+  const duration = 1800;
+  const start = performance.now();
+  function step(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    const val = (target * ease);
+    el.textContent = decimal > 0 ? val.toFixed(decimal) : Math.floor(val);
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+const countObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.querySelectorAll('.count-up').forEach(el => animateCountUp(el));
+      countObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.3 });
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+// ── FORM SUBMIT ──
+
+function handleSubmit(e) {
+  e.preventDefault();
+
+  const params = {
+    name: document.getElementById("name").value,
+    email: document.getElementById("email").value,
+    store: document.getElementById("store").value,
+    revenue: document.getElementById("revenue").value,
+    service: document.getElementById("service").value,
+    message: document.getElementById("message").value
+  };
+
+  emailjs.send(
+    "service_8jw02mx",
+    "template_27c6wcg",
+    params
+  )
+  .then(() => {
+    showToast("✅ Message sent successfully!");
+    e.target.reset();
+  })
+  .catch((error) => {
+    console.error(error);
+    showToast("❌ Failed to send message.");
+  });
+}
+
+// ── 3D CARD MOUSE PARALLAX ──
+document.addEventListener('mousemove', e => {
+  const card = document.getElementById('card3d');
+  if (!card) return;
+  const rect = card.parentElement.getBoundingClientRect();
+  const cx = rect.left + rect.width/2;
+  const cy = rect.top + rect.height/2;
+  const dx = (e.clientX - cx) / 25;
+  const dy = (e.clientY - cy) / 25;
+  card.style.transform = `rotateY(${dx}deg) rotateX(${-dy}deg)`;
+});
+
+// ── INIT ──
+renderTools('all');
+renderTestimonials();
+renderPricing();
+
+// Observe after render
+setTimeout(() => {
+  observeReveal();
+  document.querySelector('#metrics .metrics-row') && countObserver.observe(document.querySelector('#metrics .metrics-row'));
+}, 100);
+
+// Re-observe dynamically added reveal elements
+const mutObs = new MutationObserver(() => observeReveal());
+mutObs.observe(document.body, { childList: true, subtree: true });
+
+</script>
+
+
+</body>
+</html>
