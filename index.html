@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Rao sohail | Amazon Virtual Assistant</title>
+<title>Muhammad sohail | Amazon Virtual Assistant</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
@@ -67,18 +67,22 @@ body {
 
 /* ── NAV ── */
 nav {
+  margin-top: 10px;
+  background: rgba(10, 22, 40, 0.7);
+  backdrop-filter: blur(10px);
+  padding: 1rem;
   position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
-  padding: 0 40px;
-  height: 70px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(10,22,40,0.85);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border-subtle);
-  transition: all 0.3s;
+  width: 80%;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 2rem;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 153, 0, 0.2);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+  z-index: 1000;
+display:flex;
+justify-content:space-between;
+align-items:center;
 }
 nav.scrolled {
   height: 60px;
@@ -151,7 +155,7 @@ nav.scrolled {
   align-items: center;
   position: relative;
   z-index: 1;
-  padding: 100px 80px 60px;
+  padding: 170px 80px 60px;
   overflow: hidden;
 }
 .hero-content {
@@ -703,19 +707,19 @@ section { position: relative; z-index: 1; }
   margin-bottom: 20px;
   font-style: italic;
 }
-.testi-author { display: flex; align-items: center; gap: 12px; }
-.testi-avatar {
-  width: 42px; height: 42px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  flex-shrink: 0;
+.testi-image{
+  width:100%;
+  height:250px;
+  object-fit:cover;
+  border-radius:15px;
+  margin-bottom:15px;
 }
-.testi-name { font-weight: 700; font-size: 14px; }
-.testi-role { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
 
+.testi-text{
+  color:#ccc;
+  line-height:1.7;
+  font-size:15px;
+}
 /* ── PRICING ── */
 #pricing { background: transparent; }
 .pricing-toggle {
@@ -724,6 +728,38 @@ section { position: relative; z-index: 1; }
   gap: 12px;
   margin-top: 30px;
   margin-bottom: 50px;
+}
+
+/* ── FRONT & BACK COMMON STYLE ── */
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── BACK SIDE ── */
+.flip-card-back {
+  transform: rotateX(360deg);
+}
+
+/* ── IMAGE STYLE ── */
+.pricing-image {
+  width: 70%;
+  height: 70%;
+  object-fit: contain;
+}
+@keyframes flip {
+  0% {
+    transform: rotateX(0deg);
+  }
+  100% {
+    transform: rotateX(360deg);
+  }
 }
 .pricing-toggle span { font-size: 14px; color: var(--text-muted); font-weight: 500; }
 .toggle-switch {
@@ -1021,7 +1057,7 @@ footer {
   <a onclick="scrollToSection('metrics')">Results</a>
   <a onclick="scrollToSection('tools')">Tools</a>
   <a onclick="scrollToSection('experience')">Experience</a>
-  <a onclick="scrollToSection('testimonials')">Reviews</a>
+  <a onclick="scrollToSection('testimonials')">Results</a>
   <a onclick="scrollToSection('pricing')">Pricing</a>
   <a onclick="scrollToSection('contact')">Contact</a>
 </div>
@@ -1039,8 +1075,8 @@ footer {
     <a onclick="scrollToSection('metrics')">Results</a>
     <a onclick="scrollToSection('tools')">Tools</a>
     <a onclick="scrollToSection('experience')">Experience</a>
-    <a onclick="scrollToSection('testimonials')">Reviews</a>
-    <a onclick="scrollToSection('pricing')">Pricing</a>
+    <a onclick="scrollToSection('testimonials')"> Results</a>
+    <a onclick="scrollToSection('pricing')">popular services</a>
     <a class="nav-cta" onclick="scrollToSection('contact')">Hire Me →</a>
   </div>
   <button class="hamburger" onclick="toggleMobileMenu()">☰</button>
@@ -1326,10 +1362,11 @@ footer {
 <section id="testimonials">
   <div class="section-inner">
     <div class="reveal">
-      <div class="section-label">Client Love</div>
-      <h2 class="section-title">What My Clients Say</h2>
-      <p class="section-desc">Real results from real Amazon sellers I've worked with.</p>
-    </div>
+     <div class="section-label">Case Studies</div>
+<h2 class="section-title">Performance Results</h2>
+<p class="section-desc">
+  Sales dashboard snapshots and performance highlights from various Amazon stores across multiple marketplaces.
+</p>
     <div class="testimonials-grid" id="testiGrid"></div>
   </div>
 </section>
@@ -1338,17 +1375,12 @@ footer {
 <section id="pricing">
   <div class="section-inner">
     <div class="reveal">
-      <div class="section-label">Investment</div>
-      <h2 class="section-title">Transparent Pricing</h2>
+      <div class="section-label"> SERVICES WE’RE OFFERING</div>
+      <h2 class="section-title">Exclusive Amazon Services</h2>
       <p class="section-desc">Simple plans tailored to where you are in your Amazon journey.</p>
-      <div class="pricing-toggle reveal">
-        <span>Monthly</span>
-        <div class="toggle-switch" id="billingToggle" onclick="toggleBilling()">
-          <div class="toggle-knob" id="toggleKnob"></div>
-        </div>
-        <span>Quarterly</span>
-        <span class="save-badge">Save 20%</span>
-      </div>
+       <div
+       <p class="section-desc"> <br>  <br> </p>
+       </div>
     </div>
     <div class="pricing-grid reveal" id="pricingGrid"></div>
   </div>
@@ -1457,8 +1489,8 @@ footer {
   <div class="footer-logo">Muhammad <span>Sohail</span></div>
   <div class="footer-links">
     <a onclick="scrollToSection('services')">Services</a>
-    <a onclick="scrollToSection('pricing')">Pricing</a>
-    <a onclick="scrollToSection('testimonials')">Reviews</a>
+    <a onclick="scrollToSection('pricing')">popular services</a>
+    <a onclick="scrollToSection('testimonials')">Performance Results</a>
     <a onclick="scrollToSection('contact')">Contact</a>
   </div>
   <div class="footer-copy">©. Built for Amazon success. All Rights Reserved.</div>
@@ -1494,20 +1526,42 @@ const tools = [
 ];
 
 const testimonials = [
-  { stars:5, text:"Aria completely transformed our PPC strategy. Our ACoS dropped from 52% to 19% in just 8 weeks. We're now consistently profitable and she manages everything seamlessly.", name:"Marcus T.", role:"Amazon Seller · Home & Kitchen", emoji:"👨‍💼", color:"#1E3A5F" },
-  { stars:5, text:"I was skeptical hiring a VA remotely but Aria exceeded every expectation. She found us 4 winning products that each crossed $15K/mo within 6 months. Worth every penny.", name:"Sarah K.", role:"FBA Private Label Brand", emoji:"👩‍💼", color:"#2D1B3A" },
-  { stars:5, text:"The listing optimization she did for our top 10 ASINs resulted in a 34% increase in organic sales. Her keyword research is incredibly thorough and always data-backed.", name:"James R.", role:"7-Figure Amazon Brand", emoji:"🧔", color:"#1A3020" },
-  { stars:5, text:"Aria handles our full account — from inventory to PPC to customer feedback. It's like having a full-time Amazon employee at a fraction of the cost. Highly recommend!", name:"Linda P.", role:"Pet Supplies Brand Owner", emoji:"👱‍♀️", color:"#2A1810" },
-  { stars:5, text:"We went from $8K to $65K monthly revenue in under a year working with Aria. Her product research process is incredibly systematic and she keeps us ahead of competitors.", name:"David W.", role:"US-based FBA Seller", emoji:"🧑‍💻", color:"#1E2E40" },
-  { stars:5, text:"Best investment for my Amazon business. Aria built our entire brand from scratch — product research, listing, A+ content, PPC. We hit 6 figures in month 9.", name:"Priya M.", role:"Beauty & Skincare Brand", emoji:"💁‍♀️", color:"#2E1A2E" },
+{
+  image:"w1.jpeg",
+  text:"Amazon PPC Performance  <br> ✅ ACOS: 15.27% <br> ✅ Optimized Campaign Structure <br> ✅ Improved Ad Efficiency & Profitability <br> ✅ Data-Driven Bid Management <br. ✅ Focused on Sustainable Growth & Higher ROI <br> This result reflects a strategic Amazon PPC approach focused on reducing advertising costs while maximizing sales performance. Through continuous optimization, keyword management, and bid adjustments, I help brands achieve profitable and scalable growth on Amazon.",
+  link:"result1.html"
+},
+{
+  image:"w2.jpeg",
+  text:"Amazon Private Label Milestone 📈 <br> I’m pleased to share that my Amazon Private Label store generated £89,200.91 in sales with 5,856 units sold over the last 2 months. <br> These results reflect consistent execution across product research, sourcing, listing optimization, inventory planning, and account management. <br> Private label success is built on data-driven decisions and long-term thinking rather than short-term wins. <br> Grateful for the progress so far and focused on scaling further in the coming months.",
+  link:"result2.html"
+},
+{
+  image:"w3.jpeg",
+  text:"Amazon UAE Case Study <br> In just 6 months, I generated AED 218,240.75 in sales and sold 4,525 units on Amazon UAE. <br> This growth was achieved through strategic listing optimization, marketplace management, and data-driven decision-making. <br> 📈 Sales: AED 218,240.75 <br> 📦 Units Sold: 4,525 <br> 🌍 Marketplace: Amazon UAE",
+  link:"result3.html"
+},
+{
+  image:"w4.jpeg",
+  text:"€166,345.72 Sales in Just 30 Days! <br> Successful month in the Amazon Germany marketplace <br> ✅ Revenue: €166,345.72 <br> ✅ Units Sold: 6,993 <br> ✅ Amazon Private Label Business Model.",
+  link:"result4.html"
+},
+{
+  image:"w5.jpeg",
+  text:"Amazon FBA Private Label Success Story <br> Generated $117,802.69 in sales within a single month on the USA marketplace through strategic Amazon Private Label management. <br> From product optimization and PPC management to scaling sales profitably, this achievement reflects a data-driven approach and proven Amazon growth strategies.",
+  link:"result5.html"
+},
+{
+  image:"w6.jpeg",
+  text:"📈 Amazon FBA Private Label Growth Case Study <br> Achieved $437,299.44 in sales within just 6 months on the Amazon USA marketplace through strategic account management and data-driven growth strategies. <br> This success was driven by effective PPC optimization, listing enhancement, inventory planning, and continuous performance monitoring to maximize sales and profitability.",
+  link:"result6.html"
+}
 ];
 
 const pricingPlans = [
   {
     name: "Starter",
     desc: "Perfect for new sellers launching their first products on Amazon.",
-    monthly: 299,
-    quarterly: 239,
     popular: false,
     features: [
       { text: "1 Product Research / month", included: true },
@@ -1523,8 +1577,6 @@ const pricingPlans = [
   {
     name: "Growth",
     desc: "For active sellers ready to scale revenue and optimize profitability.",
-    monthly: 699,
-    quarterly: 559,
     popular: true,
     features: [
       { text: "3 Product Researches / month", included: true },
@@ -1540,8 +1592,6 @@ const pricingPlans = [
   {
     name: "Scale",
     desc: "Full-service management for established brands serious about dominating Amazon.",
-    monthly: 1299,
-    quarterly: 1039,
     popular: false,
     features: [
       { text: "Unlimited Product Research", included: true },
@@ -1702,23 +1752,22 @@ function filterTools(cat, btn) {
 }
 
 // ── TESTIMONIALS RENDER ──
+
 function renderTestimonials() {
   const grid = document.getElementById('testiGrid');
+
   grid.innerHTML = testimonials.map(t => `
     <div class="testi-card reveal">
-      <div class="testi-stars">${'★'.repeat(t.stars)}</div>
-      <p class="testi-text">"${t.text}"</p>
-      <div class="testi-author">
-        <div class="testi-avatar" style="background:${t.color}">${t.emoji}</div>
-        <div>
-          <div class="testi-name">${t.name}</div>
-          <div class="testi-role">${t.role}</div>
-        </div>
-      </div>
+
+      <a href="${t.link}" target="_blank">
+        <img src="${t.image}" class="testi-image">
+      </a>
+
+      <p class="testi-text">${t.text}</p>
+
     </div>
   `).join('');
-}
-
+} 
 // ── PRICING RENDER ──
 function renderPricing() {
   const grid = document.getElementById('pricingGrid');
@@ -1729,10 +1778,9 @@ function renderPricing() {
       ${p.popular ? '<div class="popular-badge">⭐ Most Popular</div>' : ''}
       <div class="price-plan">${p.name}</div>
       <div class="price-desc">${p.desc}</div>
-      <div>
-        <span class="price-amount">$${price}</span>
-        <span class="price-period"> / ${isQuarterly ? 'mo (billed quarterly)' : 'month'}</span>
-      </div>
+
+<hr class="price-hr">
+<ul class="price-features">
       <hr class="price-hr">
       <ul class="price-features">
         ${p.features.map(f => `
